@@ -223,9 +223,9 @@ class PinningSpinBarrier {
 
         if (operatore == "source") {
             base = 0;
-        } else if (operatore == "map") {
+        } else if (operatore == "map" || operatore == "average_calculator") {
             base = n_source_replicas;
-        } else if (operatore == "filter") {
+        } else if (operatore == "filter" || operatore == "detector") {
             base = n_source_replicas + n_map_replicas;
         } else if (operatore == "sink") {
             base = n_source_replicas + n_map_replicas + n_filter_replicas;
