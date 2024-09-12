@@ -209,6 +209,59 @@ private:
     std::atomic<long> B[2];
 };
 
+class PinningSpinBarrier {
+  private:
+    spinBarrier* spinBarrier_;
+    size_t n_source_replicas;
+    size_t n_map_replicas;
+    size_t n_filter_replicas;
+    size_t n_sink_replicas;
+
+    // Method to calculate the tid based on the operator and replica number
+    size_t getTid(const std::string& operatore, size_t replica) {
+        size_t base = 0;
+
+        if (operatore == "source") {
+            base = 0;
+        } else if (operatore == "map") {
+            base = n_source_replicas;
+        } else if (operatore == "filter") {
+            base = n_source_replicas + n_map_replicas;
+        } else if (operatore == "sink") {
+            base = n_source_replicas + n_map_replicas + n_filter_replicas;
+        } else {
+            throw std::invalid_argument("Unknown operator type.");
+        }
+
+        return base + replica;
+    }
+
+  public:
+
+    PinningSpinBarrier(size_t _maxThreads, size_t _n_source_replicas,
+                       size_t _n_map_replicas, size_t _n_filter_replicas, size_t _n_sink_replicas):
+                       n_source_replicas(_n_source_replicas),
+                       n_map_replicas(_n_map_replicas),
+                       n_filter_replicas(_n_filter_replicas),
+                       n_sink_replicas(_n_sink_replicas)
+    {
+         spinBarrier_ = new spinBarrier(_maxThreads);
+         spinBarrier_->barrierSetup(_n_source_replicas+_n_map_replicas+_n_filter_replicas + _n_sink_replicas);
+    }
+
+    // Destructor to clean up the spinBarrier
+    ~PinningSpinBarrier() {
+        delete spinBarrier_;
+    }
+
+    // Method to handle the barrier for a specific operator and replica
+    void doBarrier(const std::string& operatore, size_t replica) {
+        size_t tid = getTid(operatore, replica);
+        spinBarrier_->doBarrier(tid);
+    }
+
+};
+
 
 template<bool spin>
 struct barHelper {
