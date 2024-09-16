@@ -24,6 +24,9 @@ Makefile.in
 /configure
 /configure.scan
 /depcomp
+
+/tests/test_osssched_pipe
+
 /install-sh
 /missing
 /stamp-h1

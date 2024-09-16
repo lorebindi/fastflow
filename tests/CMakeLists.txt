@@ -1,6 +1,6 @@
 set ( TESTS
-    simplest
-    test1 test1b test2 test3 test3b test3_farm test4 test5 test6 test7 test8
+    test_ossched_pipe
+    #[[    test1 test1b test2 test3 test3b test3_farm test4 test5 test6 test7 test8
     perf_test1
     test_accelerator test_accelerator2 test_accelerator3
     test_accelerator_farm+pipe test_accelerator_pipe
@@ -33,10 +33,15 @@ set ( TESTS
     test_combine test_combine1 test_combine2 test_combine3 test_combine4 test_combine5 test_combine6 test_combine7 test_combine8 test_combine9 test_combine10 test_combine11 test_combine12 test_combine13 test_combine14
     test_all-to-all test_all-to-all2 test_all-to-all3 test_all-to-all4 test_all-to-all5 test_all-to-all6 test_all-to-all7 test_all-to-all8 test_all-to-all9 test_all-to-all10 test_all-to-all11 test_all-to-all12 test_all-to-all13 test_all-to-all14 test_all-to-all15 test_all-to-all16
     test_optimize test_optimize2 test_optimize3 test_optimize4 test_optimize5
-    test_all-or-none test_farm+farm test_farm+A2A test_farm+A2A2)
+    test_all-or-none test_farm+farm test_farm+A2A test_farm+A2A2]])
 	
 foreach( t ${TESTS} )
     add_executable( ${t}_NONBLOCKING ${t}.cpp)
+
+    if (${t} STREQUAL "test_ossched_pipe")
+        set_source_files_properties(${t}.cpp PROPERTIES COMPILE_OPTIONS "-std=c++20")
+    endif()
+
     target_include_directories(${t}_NONBLOCKING PRIVATE
                                $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
     target_link_libraries( ${t}_NONBLOCKING ${CMAKE_THREAD_LIBS_INIT} )

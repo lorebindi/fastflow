@@ -5,6 +5,10 @@
 # calling PROJECT()
 #
 
+
+cmake_minimum_required( VERSION 3.10 )
+
+
 IF(DEFINED CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
 build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
@@ -19,9 +23,8 @@ RelWithDebInfo MinSizeRel.")
 ENDIF()
 
 
-project( mc-fastflow )
 
-cmake_minimum_required( VERSION 2.8 )
+project( mc-fastflow )
 
 SET( CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake.modules )
 FILE (COPY ${PROJECT_SOURCE_DIR}/cmake.modules/templates/ffconfig.h DESTINATION ${PROJECT_SOURCE_DIR}/cmake.modules/)
@@ -32,6 +35,8 @@ INCLUDE (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckCXXSourceCompiles.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
 INCLUDE (${CMAKE_ROOT}/Modules/CheckSymbolExists.cmake)
+
+find_package(Threads REQUIRED)
 
 MESSAGE( STATUS "Detected processor is " ${CMAKE_SYSTEM_PROCESSOR})
 MESSAGE( STATUS "CMAKE_C_COMPILER: " ${CMAKE_C_COMPILER} )
@@ -82,8 +87,11 @@ endif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 ADD_DEFINITIONS(-DUSE_CMAKE_CONFIG)
 
-find_package(Threads)
-if (NOT(CMAKE_HAVE_PTHREAD_H))
+
+message(STATUS "CMAKE_THREAD_LIBS_INIT: ${CMAKE_THREAD_LIBS_INIT}")
+
+
+#[[if (NOT(CMAKE_HAVE_PTHREAD_H))
     if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         ADD_DEFINITIONS(-D_FF_SYSTEM_HAVE_WIN_PTHREAD)
         MESSAGE( STATUS "Using FF Pthread minport")
@@ -97,7 +105,7 @@ if (NOT(CMAKE_HAVE_PTHREAD_H))
     else (CMAKE_SYSTEM_NAME MATCHES "Windows")
         MESSAGE( FATAL_ERROR "Cannot find Pthreads")
     endif  (CMAKE_SYSTEM_NAME MATCHES "Windows")
-endif (NOT(CMAKE_HAVE_PTHREAD_H))
+endif (NOT(CMAKE_HAVE_PTHREAD_H))]]
 
 if (NOT(CMAKE_SYSTEM_NAME MATCHES "Windows"))
     if(CMAKE_HAVE_PTHREAD_H)
