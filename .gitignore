@@ -25,7 +25,10 @@ Makefile.in
 /configure.scan
 /depcomp
 
-/tests/test_osssched_pipe
+tests/test_ossched/logs/
+tests/test_ossched/build/
+tests/test_ossched/bin/
+
 
 /install-sh
 /missing

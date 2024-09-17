@@ -188,9 +188,6 @@ test_taskcallbacks:test_taskcallbacks.cpp
 test_stats:test_stats.cpp
 	$(CXX) -DTRACE_FASTFLOW $(INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
 
-test_ossched_pipe:test_ossched_pipe.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
-
 # test_taskf2:test_taskf2.cpp
 # 	$(CXX) $(INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
 # test_taskf3:test_taskf3.cpp

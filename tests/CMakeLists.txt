@@ -1,5 +1,5 @@
 set ( TESTS
-    test_ossched_pipe
+        test_ossched/test_ossched_pipe
     #[[    test1 test1b test2 test3 test3b test3_farm test4 test5 test6 test7 test8
     perf_test1
     test_accelerator test_accelerator2 test_accelerator3
@@ -38,7 +38,7 @@ set ( TESTS
 foreach( t ${TESTS} )
     add_executable( ${t}_NONBLOCKING ${t}.cpp)
 
-    if (${t} STREQUAL "test_ossched_pipe")
+    if (${t} STREQUAL "test_ossched/test_ossched_pipe")
         set_source_files_properties(${t}.cpp PROPERTIES COMPILE_OPTIONS "-std=c++20")
     endif()
 
