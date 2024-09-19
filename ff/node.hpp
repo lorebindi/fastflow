@@ -1026,6 +1026,8 @@ public:
      */    
     virtual ssize_t get_my_id() const { return myid; };
 
+    pthread_t get_handle() const { return this->thread->get_handle(); }
+
     /**
      * \brief Returns the OS specific thread id of the node.
      *
