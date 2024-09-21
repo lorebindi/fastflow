@@ -209,9 +209,10 @@ private:
     std::atomic<long> B[2];
 };
 
-class PinningSpinBarrier {
+/*class PinningSpinBarrier {
   private:
     spinBarrier* spinBarrier_;
+
     size_t n_source_replicas;
     size_t n_map_replicas;
     size_t n_filter_replicas;
@@ -223,9 +224,10 @@ class PinningSpinBarrier {
 
         if (operatore == "source") {
             base = 0;
-        } else if (operatore == "map" || operatore == "average_calculator") {
+        } else if (operatore == "map" || operatore == "average_calculator" || operatore == "splitter") {
             base = n_source_replicas;
-        } else if (operatore == "filter" || operatore == "detector") {
+
+        } else if (operatore == "filter" || operatore == "detector" || operatore == "counter") {
             base = n_source_replicas + n_map_replicas;
         } else if (operatore == "sink") {
             base = n_source_replicas + n_map_replicas + n_filter_replicas;
@@ -260,6 +262,34 @@ class PinningSpinBarrier {
         spinBarrier_->doBarrier(tid);
     }
 
+};*/
+
+class PinningSpinBarrier {
+private:
+    spinBarrier* spinBarrier_;
+    size_t max_threads;
+    std::atomic<size_t> counter;
+
+public:
+    PinningSpinBarrier(size_t _maxThreads)
+        : max_threads(_maxThreads), counter(0) {
+        spinBarrier_ = new spinBarrier(max_threads);
+        spinBarrier_->barrierSetup(max_threads);
+    }
+
+    ~PinningSpinBarrier() {
+        delete spinBarrier_;
+    }
+
+    void doBarrier() {
+        size_t tid = counter.fetch_add(1);
+
+        spinBarrier_->doBarrier(tid);
+
+        if (tid + 1 == max_threads) {
+            counter.store(0);
+        }
+    }
 };
 
 
