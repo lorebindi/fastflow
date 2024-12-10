@@ -209,72 +209,17 @@ private:
     std::atomic<long> B[2];
 };
 
-/*class PinningSpinBarrier {
-  private:
-    spinBarrier* spinBarrier_;
-
-    size_t n_source_replicas;
-    size_t n_map_replicas;
-    size_t n_filter_replicas;
-    size_t n_sink_replicas;
-
-    // Method to calculate the tid based on the operator and replica number
-    size_t getTid(const std::string& operatore, size_t replica) {
-        size_t base = 0;
-
-        if (operatore == "source") {
-            base = 0;
-        } else if (operatore == "map" || operatore == "average_calculator" || operatore == "splitter") {
-            base = n_source_replicas;
-
-        } else if (operatore == "filter" || operatore == "detector" || operatore == "counter") {
-            base = n_source_replicas + n_map_replicas;
-        } else if (operatore == "sink") {
-            base = n_source_replicas + n_map_replicas + n_filter_replicas;
-        } else {
-            throw std::invalid_argument("Unknown operator type.");
-        }
-
-        return base + replica;
-    }
-
-  public:
-
-    PinningSpinBarrier(size_t _maxThreads, size_t _n_source_replicas,
-                       size_t _n_map_replicas, size_t _n_filter_replicas, size_t _n_sink_replicas):
-                       n_source_replicas(_n_source_replicas),
-                       n_map_replicas(_n_map_replicas),
-                       n_filter_replicas(_n_filter_replicas),
-                       n_sink_replicas(_n_sink_replicas)
-    {
-         spinBarrier_ = new spinBarrier(_maxThreads);
-         spinBarrier_->barrierSetup(_n_source_replicas+_n_map_replicas+_n_filter_replicas + _n_sink_replicas);
-    }
-
-    // Destructor to clean up the spinBarrier
-    ~PinningSpinBarrier() {
-        delete spinBarrier_;
-    }
-
-    // Method to handle the barrier for a specific operator and replica
-    void doBarrier(const std::string& operatore, size_t replica) {
-        size_t tid = getTid(operatore, replica);
-        spinBarrier_->doBarrier(tid);
-    }
-
-};*/
-
 class PinningSpinBarrier {
 private:
     spinBarrier* spinBarrier_;
-    size_t max_threads;
-    std::atomic<size_t> counter;
+    size_t max_threads; // max number of threads that can use the barrier.
+    std::atomic<size_t> counter; // track the number of threads that reach the barrier.
 
 public:
     PinningSpinBarrier(size_t _maxThreads)
         : max_threads(_maxThreads), counter(0) {
         spinBarrier_ = new spinBarrier(max_threads);
-        spinBarrier_->barrierSetup(max_threads);
+        spinBarrier_->barrierSetup(max_threads); // Configure the spinBarrier.
     }
 
     ~PinningSpinBarrier() {
@@ -282,10 +227,11 @@ public:
     }
 
     void doBarrier() {
+        // Atomically increment counter to assign a unique fictitious thread ID.
         size_t tid = counter.fetch_add(1);
-
+        // Synchronize the thread using the spinBarrier.
         spinBarrier_->doBarrier(tid);
-
+        // Reset the counter when the last thread reaches the barrier.
         if (tid + 1 == max_threads) {
             counter.store(0);
         }
